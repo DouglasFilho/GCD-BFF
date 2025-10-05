@@ -1,59 +1,98 @@
-# GovernacaCidadaniaDigital
+<p align="center">
+  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
+</p>
 
-# Monitoramento da Atuação Parlamentar via APIs Governamentais
+[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
+[circleci-url]: https://circleci.com/gh/nestjs/nest
 
-Este projeto tem como objetivo o desenvolvimento de uma aplicação web para consolidar e apresentar, de forma clara e acessível, dados públicos sobre a atuação de parlamentares brasileiros, especialmente da Câmara dos Deputados. A iniciativa busca fortalecer a cidadania digital e promover a transparência legislativa por meio do uso de tecnologias abertas.
+  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
+    <p align="center">
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
+<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
+<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
+<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
+<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
+  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
+    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
+  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
+</p>
+  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
+  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## 🧭 Objetivos
+## Description
 
-- Integrar dados públicos de APIs governamentais.
-- Estruturar uma API intermediária para tratamento e padronização dos dados.
-- Disponibilizar uma interface intuitiva para consulta e fiscalização da atuação parlamentar.
-- Contribuir para o fortalecimento da democracia digital.
+[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
-## 🏗️ Estrutura do Projeto
+## Project setup
 
-### `backend/` (Em desenvolvimento)
-Contém a API intermediária responsável por:
-- Coletar dados da API da Câmara dos Deputados.
-- Padronizar e consolidar os dados.
-- Servir os dados para o frontend via endpoints REST.
+```bash
+$ npm install
+```
 
-### `frontend/` (em breve)
-Interface web acessível via navegador, com foco em:
-- Usabilidade
-- Visualização amigável de votações, proposições, presenças e gastos parlamentares
+## Compile and run the project
 
-## 🚧 Status do Projeto
+```bash
+# development
+$ npm run start
 
-- [x] Levantamento dos requisitos
-- [x] Estudo técnico da API da Câmara dos Deputados
-- [x] Início da estruturação do backend
-- [ ] Desenvolvimento da API funcional
-- [ ] Início do desenvolvimento do frontend
+# watch mode
+$ npm run start:dev
 
-## 📚 Tecnologias
+# production mode
+$ npm run start:prod
+```
 
-- **Backend:** Python
-- **Frontend:** Vue.js ou React (a definir)
-- **Banco de Dados:** MongoDB ou PostgreSQL (dependendo do modelo de dados)
-- **Ferramentas adicionais:** Docker, Postman
+## Run tests
 
-## 📁 Instalação e Uso (em breve)
+```bash
+# unit tests
+$ npm run test
 
-As instruções de clonagem, instalação de dependências e execução do projeto serão adicionadas assim que os módulos estiverem prontos para testes.
+# e2e tests
+$ npm run test:e2e
 
-## 🤝 Contribuições
+# test coverage
+$ npm run test:cov
+```
 
-Este projeto faz parte do Trabalho de Conclusão de Curso em Sistemas de Informação pela UFMG e é desenvolvido por [Douglas Rodrigues Fernandes Filho](mailto:douglasrffilho@gmail.com).
+## Deployment
 
-## 📜 Licença
+When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
 
-Este projeto é de uso acadêmico e está licenciado sob a [MIT License](LICENSE).
+If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
 
-## 📎 Referências
+```bash
+$ npm install -g @nestjs/mau
+$ mau deploy
+```
 
-- [API de Dados Abertos - Câmara dos Deputados](https://dadosabertos.camara.leg.br/)
-- [Lei de Acesso à Informação (Lei nº 12.527/2011)](https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2011/lei/l12527.htm)
-- [Decreto nº 8.777/2016 – Política de Dados Abertos](https://www.planalto.gov.br/ccivil_03/_Ato2015-2018/2016/Decreto/D8777.htm)
+With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
 
+## Resources
+
+Check out a few resources that may come in handy when working with NestJS:
+
+- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
+- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
+- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
+- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
+- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
+- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
+- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
+- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+
+## Support
+
+Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+
+## Stay in touch
+
+- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
+- Website - [https://nestjs.com](https://nestjs.com/)
+- Twitter - [@nestframework](https://twitter.com/nestframework)
+
+## License
+
+Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).

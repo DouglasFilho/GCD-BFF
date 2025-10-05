@@ -1,0 +1,1 @@
+export const CHAMBER_API_BASE = 'https://dadosabertos.camara.leg.br/api/v2';

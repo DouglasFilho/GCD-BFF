@@ -1,0 +1,18 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "NestJS Debug",
+            "type": "node",
+            "request": "attach",
+            "port": 9229,
+            "restart": true,
+            "protocol": "inspector",
+            "timeout": 30000,
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
