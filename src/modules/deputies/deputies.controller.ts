@@ -1,19 +1,19 @@
 import { Controller, Get, Param } from "@nestjs/common";
-import { ChamberService } from "../chamber/chamber.service";
+import { DeputiesService } from "./deputies.service";
 
 @Controller('deputies')
 export class DeputiesController {
-    constructor(private readonly chamberService: ChamberService) { }
+    constructor(private readonly deputiesService: DeputiesService) { }
 
     @Get()
     async list() {
-        const deputiesResponse = await this.chamberService.getDeputies()
-        return { deputiesResponse }
+        const response = await this.deputiesService.getFilteredDeputies()
+        return { response }
     }
 
     @Get(':id')
     async show(@Param() params: { id: string }) {
-        const deputies = await this.chamberService.getDeputieInfo(params)
-        return { deputies }
+        const response = await this.deputiesService.getFilteredDeputyInfo(params.id)
+        return { response }
     }
 }
