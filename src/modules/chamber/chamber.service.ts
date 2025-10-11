@@ -10,8 +10,11 @@ export class ChamberService {
         return deputiesResponse;
     }
 
-    async getDeputieInfo(params: { id: string }) {
-        const deputiePayload = await this.client.get(`/deputados/${params.id}`)
-        return deputiePayload;
+    async getDeputy(id: string) {
+        return this.client.get(`/deputados/${id}`);
+    }
+
+    async getDeputyExpenses(id: string, params?: Record<string, any>) {
+        return this.client.get(`/deputados/${id}/despesas`, params);
     }
 }
