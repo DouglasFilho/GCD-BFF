@@ -1,5 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from "@nestjs/common";
 import { ChamberService } from "../chamber/chamber.service";
+import { IExpense } from "./deputies.interfaces";
 
 @Injectable()
 export class DeputiesService {
@@ -32,7 +33,16 @@ export class DeputiesService {
 
 
         const deputy = this.filterDeputyData((depRes as any).value);
-        const expenses = this.filterExpensesData((expRes as any).value);
+        const deputyExpenses = this.filterExpensesData((expRes as any).value);
+
+        const expensesTotal = deputyExpenses.reduce((acc, expense) => acc + expense.valorLiquido, 0)
+        const averageMonthlyExpense = ((expensesTotal ?? 0) / deputyExpenses.length).toFixed(2)
+
+        const expenses = {
+            data: deputyExpenses,
+            total: expensesTotal,
+            averageMonthlyExpense: parseFloat(averageMonthlyExpense)
+        }
 
         return {
             data: { deputy, expenses }
@@ -82,7 +92,8 @@ export class DeputiesService {
         return data;
     }
 
-    private filterExpensesData(data: any) {
+
+    private filterExpensesData(data: any): Array<IExpense> {
         if (data?.dados) {
             return data.dados.map((exp: any) => ({
                 tipoDespesa: exp.tipoDespesa ?? exp.tipoDocumento,
@@ -94,6 +105,7 @@ export class DeputiesService {
             }))
 
         }
-        return data;
+
+        return [];
     }
 }
