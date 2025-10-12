@@ -1,5 +1,6 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, HttpException, HttpStatus } from "@nestjs/common";
 import { ChamberService } from "../chamber/chamber.service";
+import { IExpense } from "./deputies.interfaces";
 
 @Injectable()
 export class DeputiesService {
@@ -11,15 +12,43 @@ export class DeputiesService {
     }
 
     async getFilteredDeputyInfo(id: string) {
-        const [deputyPayload, expensesPayload] = await Promise.all([
+        const [depRes, expRes] = await Promise.allSettled([
             this.chamberService.getDeputy(id),
             this.chamberService.getDeputyExpenses(id, { ano: 2025 })
         ]);
 
-        const deputy = this.filterDeputyData(deputyPayload);
-        const expenses = this.filterExpensesData(expensesPayload);
-        return { data: { deputy, expenses } };
+
+        if (depRes.status !== 'fulfilled' || expRes.status !== 'fulfilled') {
+            const errors: any = {
+                deputy: (depRes as any).reason ?? null,
+                expenses: (expRes as any).reason ?? null
+            };
+
+            const status = (errors.deputy?.status) || (errors.expenses?.status) || HttpStatus.BAD_GATEWAY;
+            const message = (errors.deputy?.message) || (errors.expenses?.message) || "Error accessing external service";
+            const response = (errors.deputy?.response) || (errors.expenses?.response) || {};
+
+            throw new HttpException({ message, response }, status);
+        }
+
+
+        const deputy = this.filterDeputyData((depRes as any).value);
+        const deputyExpenses = this.filterExpensesData((expRes as any).value);
+
+        const expensesTotal = deputyExpenses.reduce((acc, expense) => acc + expense.valorLiquido, 0)
+        const averageMonthlyExpense = ((expensesTotal ?? 0) / deputyExpenses.length).toFixed(2)
+
+        const expenses = {
+            data: deputyExpenses,
+            total: expensesTotal,
+            averageMonthlyExpense: parseFloat(averageMonthlyExpense)
+        }
+
+        return {
+            data: { deputy, expenses }
+        };
     }
+
 
     private filterDeputiesListData(data: any) {
         if (data?.dados) {
@@ -63,7 +92,8 @@ export class DeputiesService {
         return data;
     }
 
-    private filterExpensesData(data: any) {
+
+    private filterExpensesData(data: any): Array<IExpense> {
         if (data?.dados) {
             return data.dados.map((exp: any) => ({
                 tipoDespesa: exp.tipoDespesa ?? exp.tipoDocumento,
@@ -75,6 +105,7 @@ export class DeputiesService {
             }))
 
         }
-        return data;
+
+        return [];
     }
 }
