@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from "@nestjs/common";
 import { ChamberService } from "../chamber/chamber.service";
-import { IExpense } from "./deputies.interfaces";
+import { IEnrichedDeputy, IExpense, ISimplifiedDeputy } from "./deputies.interfaces";
 
 @Injectable()
 export class DeputiesService {
@@ -36,7 +36,8 @@ export class DeputiesService {
         const deputyExpenses = this.filterExpensesData((expRes as any).value);
 
         const expensesTotal = deputyExpenses.reduce((acc, expense) => acc + expense.valorLiquido, 0)
-        const averageMonthlyExpense = ((expensesTotal ?? 0) / deputyExpenses.length).toFixed(2)
+        const monthsElapsed = new Date().getMonth() + 1
+        const averageMonthlyExpense = ((expensesTotal ?? 0) / monthsElapsed).toFixed(2)
 
         const expenses = {
             data: deputyExpenses,
@@ -50,7 +51,7 @@ export class DeputiesService {
     }
 
 
-    private filterDeputiesListData(data: any) {
+    private filterDeputiesListData(data: any): Array<ISimplifiedDeputy> {
         if (data?.dados) {
             return {
                 ...data,
@@ -67,7 +68,7 @@ export class DeputiesService {
         return data;
     }
 
-    private filterDeputyData(data: any) {
+    private filterDeputyData(data: any): IEnrichedDeputy {
         if (data?.dados) {
             const deputy = data.dados;
             return {
@@ -80,12 +81,12 @@ export class DeputiesService {
                 ufNascimento: deputy.ufNascimento,
                 municipioNascimento: deputy.municipioNascimento,
                 escolaridade: deputy.escolaridade,
-                email: deputy.email,
+    //          email: deputy.email,
                 urlFoto: deputy.ultimoStatus?.urlFoto ?? deputy.urlFoto,
                 redeSocial: deputy.redeSocial,
-                gabinete: deputy.gabinete,
-                situacao: deputy.situacao,
-                condicaoEleitoral: deputy.condicaoEleitoral,
+    //            gabinete: deputy.gabinete,
+    //            situacao: deputy.situacao,
+    //            condicaoEleitoral: deputy.condicaoEleitoral,
                 siglaPartido: deputy.ultimoStatus?.siglaPartido ?? deputy.siglaPartido
             };
         }
