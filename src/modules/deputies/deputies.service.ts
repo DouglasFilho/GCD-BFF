@@ -1,11 +1,59 @@
 import { Injectable, HttpException, HttpStatus } from "@nestjs/common";
 import { ChamberService } from "../chamber/chamber.service";
 import { IEnrichedDeputy, IExpense, ISimplifiedDeputy } from "./deputies.interfaces";
+import { InjectRepository } from '@nestjs/typeorm';
+import { Deputy } from "./deputy.entity";
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class DeputiesService {
-    constructor(private readonly chamberService: ChamberService) { }
+    constructor(
+        private readonly chamberService: ChamberService,
+        @InjectRepository(Deputy)
+        private deputiesRepository: Repository<Deputy>,
+    ) {}
 
+    findAll(): Promise<Deputy[]> {
+        return this.deputiesRepository.find();
+    }
+
+    findOne(id: number): Promise<Deputy | null> {
+        return this.deputiesRepository.findOneBy({ id });
+    }
+
+    async remove(id: number): Promise<void> {
+        await this.deputiesRepository.delete(id);
+    }
+
+    async addDeputy(deputy: ISimplifiedDeputy) {
+        const newDeputy = this.deputiesRepository.create({
+            name: deputy.nome,
+            chamberApiId: deputy.id,
+            partyAcronym: deputy.siglaPartido,
+            stateAcronym: deputy.siglaUf,
+            photoUrl: deputy.urlFoto
+        });
+
+        await this.deputiesRepository.save(newDeputy);
+        return newDeputy;
+    }
+
+    async updateDeputies() {
+        const rawDeputies = await this.chamberService.getDeputies();
+        const deputies = this.filterDeputiesListData(rawDeputies);
+
+        if (deputies?.dados) {
+            deputies.dados.forEach(async (deputy) => {
+                const findDeputy = await this.deputiesRepository.findOneBy({ chamberApiId: deputy.id })
+                if (!findDeputy) {
+                    this.addDeputy(deputy);
+                }
+            });
+        }
+
+        return this.findAll();
+    }
+ 
     async getFilteredDeputies() {
         const rawDeputies = await this.chamberService.getDeputies();
         return this.filterDeputiesListData(rawDeputies);
@@ -51,7 +99,7 @@ export class DeputiesService {
     }
 
 
-    private filterDeputiesListData(data: any): Array<ISimplifiedDeputy> {
+    private filterDeputiesListData(data: any): {dados: ISimplifiedDeputy[], links: String[]} {
         if (data?.dados) {
             return {
                 ...data,
