@@ -1,4 +1,3 @@
-
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
@@ -17,7 +16,7 @@ export class Deputy {
 
   @Column()
   stateAcronym: string;
-
+  
   @Column()
   photoUrl: string;
 }

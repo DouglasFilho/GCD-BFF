@@ -4,11 +4,13 @@ import { DeputiesService } from "./deputies.service";
 import { ChamberModule } from "../chamber/chamber.module";
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Deputy } from "./deputy.entity";
+import { ConsolidatedExpenses } from "../expenses/consolidatedExpenses.entity";
+import { ExpensesService } from "../expenses/expenses.service";
 
 @Module({
-    imports: [ChamberModule, TypeOrmModule.forFeature([Deputy])],
+    imports: [ChamberModule, TypeOrmModule.forFeature([Deputy, ConsolidatedExpenses])],
     controllers: [DeputiesController],
-    providers: [DeputiesService],
+    providers: [DeputiesService, ExpensesService],
     exports: [DeputiesService]
 })
 export class DeputiesModule { }
