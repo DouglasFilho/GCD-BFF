@@ -4,6 +4,7 @@ import { IEnrichedDeputy, IExpense, ISimplifiedDeputy } from "./deputies.interfa
 import { InjectRepository } from '@nestjs/typeorm';
 import { Deputy } from "./deputy.entity";
 import { Repository } from 'typeorm';
+import { ExpensesService } from "../expenses/expenses.service";
 
 @Injectable()
 export class DeputiesService {
@@ -11,6 +12,7 @@ export class DeputiesService {
         private readonly chamberService: ChamberService,
         @InjectRepository(Deputy)
         private deputiesRepository: Repository<Deputy>,
+        private readonly expensesService: ExpensesService,
     ) {}
 
     findAll(): Promise<Deputy[]> {
@@ -83,14 +85,23 @@ export class DeputiesService {
         const deputy = this.filterDeputyData((depRes as any).value);
         const deputyExpenses = this.filterExpensesData((expRes as any).value);
 
-        const expensesTotal = deputyExpenses.reduce((acc, expense) => acc + expense.valorLiquido, 0)
-        const monthsElapsed = new Date().getMonth() + 1
-        const averageMonthlyExpense = ((expensesTotal ?? 0) / monthsElapsed).toFixed(2)
+        const chamberApiId = Number(id);
+        let localDeputy = await this.deputiesRepository.findOne({ where: { chamberApiId } });
+
+        let consolidated = null as any;
+        if (localDeputy) {
+            consolidated = await this.expensesService.findOne(localDeputy.id);
+            if (!consolidated) {
+                consolidated = await this.expensesService.createOrUpdateConsolidatedExpense(localDeputy.id, deputyExpenses);
+            }
+        }
 
         const expenses = {
             data: deputyExpenses,
-            total: expensesTotal,
-            averageMonthlyExpense: parseFloat(averageMonthlyExpense)
+            total: consolidated?.expensesSum ?? deputyExpenses.reduce((acc, e) => acc + (e.valorLiquido ?? 0), 0),
+            averageMonthlyExpense: consolidated?.averageMonthlyExpense ?? parseFloat((((deputyExpenses.reduce((a, e) => a + (e.valorLiquido ?? 0), 0)) || 0) / (new Date().getMonth() + 1)).toFixed(2)),
+            mostFrequentType: consolidated?.mostFrequentType ?? undefined,
+            expensesQuantity: consolidated?.expensesQuantity ?? deputyExpenses.length,
         }
 
         return {
