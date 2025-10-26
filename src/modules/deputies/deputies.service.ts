@@ -61,7 +61,7 @@ export class DeputiesService {
         return this.filterDeputiesListData(rawDeputies);
     }
 
-    async getFilteredDeputyInfo(id: string) {
+    async getFilteredDeputyInfo(id: number) {
         const [depRes, expRes] = await Promise.allSettled([
             this.chamberService.getDeputy(id),
             this.chamberService.getDeputyExpenses(id, { ano: 2025 })
@@ -98,14 +98,10 @@ export class DeputiesService {
 
         const expenses = {
             data: deputyExpenses,
-            total: consolidated?.expensesSum ?? deputyExpenses.reduce((acc, e) => acc + (e.valorLiquido ?? 0), 0),
-            averageMonthlyExpense: consolidated?.averageMonthlyExpense ?? parseFloat((((deputyExpenses.reduce((a, e) => a + (e.valorLiquido ?? 0), 0)) || 0) / (new Date().getMonth() + 1)).toFixed(2)),
-            mostFrequentType: consolidated?.mostFrequentType ?? undefined,
-            expensesQuantity: consolidated?.expensesQuantity ?? deputyExpenses.length,
         }
 
         return {
-            data: { deputy, expenses }
+            data: { deputy, expenses, consolidatedExpenses: consolidated }
         };
     }
 
@@ -163,7 +159,6 @@ export class DeputiesService {
                 nomeFornecedor: exp.nomeFornecedor ?? exp.fornecedor,
                 cnpjCpfFornecedor: exp.cnpjCpfFornecedor ?? exp.cpfCnpjFornecedor
             }))
-
         }
 
         return [];

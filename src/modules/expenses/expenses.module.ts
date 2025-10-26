@@ -11,4 +11,4 @@ import { ConsolidatedExpenses } from "./consolidatedExpenses.entity";
     providers: [ExpensesService],
     exports: [ExpensesService]
 })
-export class DeputiesModule { }
+export class ExpensesModule { }

@@ -12,7 +12,7 @@ export class DeputiesController {
     }
 
     @Get(':id')
-    async show(@Param() params: { id: string }) {
+    async show(@Param() params: { id: number }) {
         const response = await this.deputiesService.getFilteredDeputyInfo(params.id)
         return { response }
     }

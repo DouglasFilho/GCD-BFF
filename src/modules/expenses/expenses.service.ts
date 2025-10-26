@@ -3,10 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DeepPartial } from 'typeorm';
 import { ConsolidatedExpenses } from './consolidatedExpenses.entity';
 import { IExpense } from '../deputies/deputies.interfaces';
+import { ChamberService } from '../chamber/chamber.service';
 
 @Injectable()
 export class ExpensesService {
   constructor(
+    private readonly chamberService: ChamberService,
     @InjectRepository(ConsolidatedExpenses)
     private readonly expensesRepository: Repository<ConsolidatedExpenses>,
   ) {}
@@ -70,4 +72,45 @@ export class ExpensesService {
     const entity = this.expensesRepository.create(payload);
     return this.expensesRepository.save(entity);
   }
+
+  async compare(deputyId: number, targetComparison: number) {
+    let existingDeputyConsolidated = await this.expensesRepository.findOne({
+      where: { deputy: { id: deputyId } },
+    });
+    
+    let existingTargetConsolidated = await this.expensesRepository.findOne({
+      where: { deputy: { id: deputyId } },
+    });
+
+    if (!existingDeputyConsolidated) {
+        const deputyExpenses = await this.chamberService.getDeputyExpenses(deputyId, { ano: 2025 })
+        existingDeputyConsolidated = await this.createOrUpdateConsolidatedExpense(deputyId, this.filterExpensesData(deputyExpenses))
+    }
+
+    if (!existingTargetConsolidated) {
+        const targetExpenses = await this.chamberService.getDeputyExpenses(targetComparison, { ano: 2025 })
+        existingTargetConsolidated = await this.createOrUpdateConsolidatedExpense(deputyId, this.filterExpensesData(targetComparison))
+    }
+
+    return {
+        deputyConsolidated: existingDeputyConsolidated,
+        targetConsolidated: existingTargetConsolidated
+    }
+  }
+
+  
+    private filterExpensesData(data: any): Array<IExpense> {
+        if (data?.dados) {
+            return data.dados.map((exp: any) => ({
+                tipoDespesa: exp.tipoDespesa ?? exp.tipoDocumento,
+                dataDocumento: exp.dataDocumento,
+                valorDocumento: exp.valorDocumento,
+                valorLiquido: exp.valorLiquido,
+                nomeFornecedor: exp.nomeFornecedor ?? exp.fornecedor,
+                cnpjCpfFornecedor: exp.cnpjCpfFornecedor ?? exp.cpfCnpjFornecedor
+            }))
+        }
+
+        return [];
+    }
 }
