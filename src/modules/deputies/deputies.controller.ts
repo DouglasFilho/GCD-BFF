@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post } from "@nestjs/common";
+import { Controller, Get, Param, Post, ParseIntPipe } from "@nestjs/common";
 import { DeputiesService } from "./deputies.service";
 
 @Controller('deputies')
@@ -12,8 +12,8 @@ export class DeputiesController {
     }
 
     @Get(':id')
-    async show(@Param() params: { id: number }) {
-        const response = await this.deputiesService.getFilteredDeputyInfo(params.id)
+    async show(@Param('id', ParseIntPipe) id: number) {
+        const response = await this.deputiesService.getFilteredDeputyInfo(id)
         return { response }
     }
 

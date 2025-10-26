@@ -4,6 +4,7 @@ import { Repository, DeepPartial } from 'typeorm';
 import { ConsolidatedExpenses } from './consolidatedExpenses.entity';
 import { IExpense } from '../deputies/deputies.interfaces';
 import { ChamberService } from '../chamber/chamber.service';
+import { Deputy } from '../deputies/deputy.entity';
 
 @Injectable()
 export class ExpensesService {
@@ -11,6 +12,8 @@ export class ExpensesService {
     private readonly chamberService: ChamberService,
     @InjectRepository(ConsolidatedExpenses)
     private readonly expensesRepository: Repository<ConsolidatedExpenses>,
+    @InjectRepository(Deputy)
+    private readonly deputyRepository: Repository<Deputy>,
   ) {}
 
   findAll(): Promise<ConsolidatedExpenses[]> {
@@ -77,25 +80,38 @@ export class ExpensesService {
     let existingDeputyConsolidated = await this.expensesRepository.findOne({
       where: { deputy: { id: deputyId } },
     });
-    
+
     let existingTargetConsolidated = await this.expensesRepository.findOne({
-      where: { deputy: { id: deputyId } },
+      where: { deputy: { id: targetComparison } },
     });
 
+    const deputy = await this.deputyRepository.findOne({ where: { id: deputyId } });
+    const targetDeputy = await this.deputyRepository.findOne({ where: { id: targetComparison } });
+
+    if (!deputy || !targetDeputy) {
+      throw new Error('Deputy not found for comparison');
+    }
+
     if (!existingDeputyConsolidated) {
-        const deputyExpenses = await this.chamberService.getDeputyExpenses(deputyId, { ano: 2025 })
-        existingDeputyConsolidated = await this.createOrUpdateConsolidatedExpense(deputyId, this.filterExpensesData(deputyExpenses))
+      const deputyExpenses = await this.chamberService.getDeputyExpenses(deputy.chamberApiId, { ano: 2025 });
+      existingDeputyConsolidated = await this.createOrUpdateConsolidatedExpense(
+        deputyId,
+        this.filterExpensesData(deputyExpenses),
+      );
     }
 
     if (!existingTargetConsolidated) {
-        const targetExpenses = await this.chamberService.getDeputyExpenses(targetComparison, { ano: 2025 })
-        existingTargetConsolidated = await this.createOrUpdateConsolidatedExpense(deputyId, this.filterExpensesData(targetComparison))
+      const targetExpenses = await this.chamberService.getDeputyExpenses(targetDeputy.chamberApiId, { ano: 2025 });
+      existingTargetConsolidated = await this.createOrUpdateConsolidatedExpense(
+        targetComparison,
+        this.filterExpensesData(targetExpenses),
+      );
     }
 
     return {
-        deputyConsolidated: existingDeputyConsolidated,
-        targetConsolidated: existingTargetConsolidated
-    }
+      deputyConsolidated: existingDeputyConsolidated,
+      targetConsolidated: existingTargetConsolidated,
+    };
   }
 
   

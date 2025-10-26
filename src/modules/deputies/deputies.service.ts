@@ -62,9 +62,16 @@ export class DeputiesService {
     }
 
     async getFilteredDeputyInfo(id: number) {
+        const localDeputy = await this.deputiesRepository.findOne({ where: { id } });
+        if (!localDeputy) {
+            throw new HttpException({ message: 'Deputy not found' }, HttpStatus.NOT_FOUND);
+        }
+
+        const chamberApiId = localDeputy.chamberApiId;
+
         const [depRes, expRes] = await Promise.allSettled([
-            this.chamberService.getDeputy(id),
-            this.chamberService.getDeputyExpenses(id, { ano: 2025 })
+            this.chamberService.getDeputy(chamberApiId),
+            this.chamberService.getDeputyExpenses(chamberApiId, { ano: 2025 })
         ]);
 
 
@@ -85,15 +92,9 @@ export class DeputiesService {
         const deputy = this.filterDeputyData((depRes as any).value);
         const deputyExpenses = this.filterExpensesData((expRes as any).value);
 
-        const chamberApiId = Number(id);
-        let localDeputy = await this.deputiesRepository.findOne({ where: { chamberApiId } });
-
-        let consolidated = null as any;
-        if (localDeputy) {
-            consolidated = await this.expensesService.findOne(localDeputy.id);
-            if (!consolidated) {
-                consolidated = await this.expensesService.createOrUpdateConsolidatedExpense(localDeputy.id, deputyExpenses);
-            }
+        let consolidated = await this.expensesService.findOne(localDeputy.id);
+        if (!consolidated) {
+            consolidated = await this.expensesService.createOrUpdateConsolidatedExpense(localDeputy.id, deputyExpenses);
         }
 
         const expenses = {
