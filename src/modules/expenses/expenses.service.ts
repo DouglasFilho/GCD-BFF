@@ -108,9 +108,20 @@ export class ExpensesService {
       );
     }
 
+    const baseTotal = Number(existingDeputyConsolidated?.expensesSum ?? 0);
+    const targetTotal = Number(existingTargetConsolidated?.expensesSum ?? 0);
+    const baseMonthly = Number(existingDeputyConsolidated?.averageMonthlyExpense ?? 0);
+    const targetMonthly = Number(existingTargetConsolidated?.averageMonthlyExpense ?? 0);
+
+    const pct = (t: number, b: number) => (b ? Number((((t - b) / b) * 100).toFixed(2)) : 0);
+
     return {
       deputyConsolidated: existingDeputyConsolidated,
       targetConsolidated: existingTargetConsolidated,
+      comparison: {
+        totalPercentageDifference: pct(targetTotal, baseTotal),
+        monthlyAveragePercentageDifference: pct(targetMonthly, baseMonthly),
+      },
     };
   }
 
