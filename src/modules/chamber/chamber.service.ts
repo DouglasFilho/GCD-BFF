@@ -10,11 +10,11 @@ export class ChamberService {
         return deputiesResponse;
     }
 
-    async getDeputy(id: string) {
+    async getDeputy(id: number) {
         return this.client.get(`/deputados/${id}`);
     }
 
-    async getDeputyExpenses(id: string, params?: Record<string, any>) {
+    async getDeputyExpenses(id: number, params?: Record<string, any>) {
         return this.client.get(`/deputados/${id}/despesas`, params);
     }
 }

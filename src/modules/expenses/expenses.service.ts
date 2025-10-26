@@ -3,12 +3,17 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DeepPartial } from 'typeorm';
 import { ConsolidatedExpenses } from './consolidatedExpenses.entity';
 import { IExpense } from '../deputies/deputies.interfaces';
+import { ChamberService } from '../chamber/chamber.service';
+import { Deputy } from '../deputies/deputy.entity';
 
 @Injectable()
 export class ExpensesService {
   constructor(
+    private readonly chamberService: ChamberService,
     @InjectRepository(ConsolidatedExpenses)
     private readonly expensesRepository: Repository<ConsolidatedExpenses>,
+    @InjectRepository(Deputy)
+    private readonly deputyRepository: Repository<Deputy>,
   ) {}
 
   findAll(): Promise<ConsolidatedExpenses[]> {
@@ -70,4 +75,69 @@ export class ExpensesService {
     const entity = this.expensesRepository.create(payload);
     return this.expensesRepository.save(entity);
   }
+
+  async compare(deputyId: number, targetComparison: number) {
+    let existingDeputyConsolidated = await this.expensesRepository.findOne({
+      where: { deputy: { id: deputyId } },
+    });
+
+    let existingTargetConsolidated = await this.expensesRepository.findOne({
+      where: { deputy: { id: targetComparison } },
+    });
+
+    const deputy = await this.deputyRepository.findOne({ where: { id: deputyId } });
+    const targetDeputy = await this.deputyRepository.findOne({ where: { id: targetComparison } });
+
+    if (!deputy || !targetDeputy) {
+      throw new Error('Deputy not found for comparison');
+    }
+
+    if (!existingDeputyConsolidated) {
+      const deputyExpenses = await this.chamberService.getDeputyExpenses(deputy.chamberApiId, { ano: 2025 });
+      existingDeputyConsolidated = await this.createOrUpdateConsolidatedExpense(
+        deputyId,
+        this.filterExpensesData(deputyExpenses),
+      );
+    }
+
+    if (!existingTargetConsolidated) {
+      const targetExpenses = await this.chamberService.getDeputyExpenses(targetDeputy.chamberApiId, { ano: 2025 });
+      existingTargetConsolidated = await this.createOrUpdateConsolidatedExpense(
+        targetComparison,
+        this.filterExpensesData(targetExpenses),
+      );
+    }
+
+    const baseTotal = Number(existingDeputyConsolidated?.expensesSum ?? 0);
+    const targetTotal = Number(existingTargetConsolidated?.expensesSum ?? 0);
+    const baseMonthly = Number(existingDeputyConsolidated?.averageMonthlyExpense ?? 0);
+    const targetMonthly = Number(existingTargetConsolidated?.averageMonthlyExpense ?? 0);
+
+    const pct = (t: number, b: number) => (b ? Number((((t - b) / b) * 100).toFixed(2)) : 0);
+
+    return {
+      deputyConsolidated: existingDeputyConsolidated,
+      targetConsolidated: existingTargetConsolidated,
+      comparison: {
+        totalPercentageDifference: pct(targetTotal, baseTotal),
+        monthlyAveragePercentageDifference: pct(targetMonthly, baseMonthly),
+      },
+    };
+  }
+
+  
+    private filterExpensesData(data: any): Array<IExpense> {
+        if (data?.dados) {
+            return data.dados.map((exp: any) => ({
+                tipoDespesa: exp.tipoDespesa ?? exp.tipoDocumento,
+                dataDocumento: exp.dataDocumento,
+                valorDocumento: exp.valorDocumento,
+                valorLiquido: exp.valorLiquido,
+                nomeFornecedor: exp.nomeFornecedor ?? exp.fornecedor,
+                cnpjCpfFornecedor: exp.cnpjCpfFornecedor ?? exp.cpfCnpjFornecedor
+            }))
+        }
+
+        return [];
+    }
 }

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { DeputiesModule } from './modules/deputies/deputies.module';
 import { ChamberModule } from './modules/chamber/chamber.module';
+import { ExpensesModule } from './modules/expenses/expenses.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
@@ -8,7 +9,8 @@ import { DataSource } from 'typeorm';
 @Module({
   imports: [
     DeputiesModule, 
-    ChamberModule,     
+    ChamberModule,
+    ExpensesModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
