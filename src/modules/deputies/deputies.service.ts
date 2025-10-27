@@ -89,7 +89,7 @@ export class DeputiesService {
         }
 
 
-        const deputy = this.filterDeputyData((depRes as any).value);
+        const deputy = this.filterDeputyData((depRes as any).value, localDeputy);
         const deputyExpenses = this.filterExpensesData((expRes as any).value);
 
         let consolidated = await this.expensesService.findOne(localDeputy.id);
@@ -124,12 +124,12 @@ export class DeputiesService {
         return data;
     }
 
-    private filterDeputyData(data: any): IEnrichedDeputy {
+    private filterDeputyData(data: any, localDeputy?: Deputy): IEnrichedDeputy {
         if (data?.dados) {
             const deputy = data.dados;
             return {
-                id: deputy.id,
-                nome: deputy.ultimoStatus?.nome ?? deputy.nome,
+                id: localDeputy?.id ?? deputy.id,
+                nome: localDeputy?.name ?? (deputy.ultimoStatus?.nome ?? deputy.nome),
                 nomeCivil: deputy.nomeCivil,
                 cpf: deputy.cpf,
                 sexo: deputy.sexo,
@@ -137,13 +137,9 @@ export class DeputiesService {
                 ufNascimento: deputy.ufNascimento,
                 municipioNascimento: deputy.municipioNascimento,
                 escolaridade: deputy.escolaridade,
-    //          email: deputy.email,
-                urlFoto: deputy.ultimoStatus?.urlFoto ?? deputy.urlFoto,
+                urlFoto: localDeputy?.photoUrl ?? (deputy.ultimoStatus?.urlFoto ?? deputy.urlFoto),
                 redeSocial: deputy.redeSocial,
-    //            gabinete: deputy.gabinete,
-    //            situacao: deputy.situacao,
-    //            condicaoEleitoral: deputy.condicaoEleitoral,
-                siglaPartido: deputy.ultimoStatus?.siglaPartido ?? deputy.siglaPartido
+                siglaPartido: localDeputy?.partyAcronym ?? (deputy.ultimoStatus?.siglaPartido ?? deputy.siglaPartido)
             };
         }
         return data;
