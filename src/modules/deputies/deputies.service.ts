@@ -127,6 +127,7 @@ export class DeputiesService {
     private filterDeputyData(data: any, localDeputy?: Deputy): IEnrichedDeputy {
         if (data?.dados) {
             const deputy = data.dados;
+
             return {
                 id: localDeputy?.id ?? deputy.id,
                 nome: localDeputy?.name ?? (deputy.ultimoStatus?.nome ?? deputy.nome),
